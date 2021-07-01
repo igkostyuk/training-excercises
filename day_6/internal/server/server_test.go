@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Metalscreame/go-training/day_6/networking-handlers/entity"
+	"github.com/Metalscreame/go-training/day_6/networking-handlers/internal/entity"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/jarcoal/httpmock"

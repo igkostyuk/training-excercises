@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Metalscreame/go-training/day_6/networking-handlers/entity"
+	"github.com/Metalscreame/go-training/day_6/networking-handlers/internal/entity"
 	"github.com/google/uuid"
 )
 

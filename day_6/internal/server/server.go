@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Metalscreame/go-training/day_6/networking-handlers/customerrors"
-	"github.com/Metalscreame/go-training/day_6/networking-handlers/entity"
+	"github.com/Metalscreame/go-training/day_6/networking-handlers/internal/customerrors"
+	"github.com/Metalscreame/go-training/day_6/networking-handlers/internal/entity"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 )

@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	entity "github.com/Metalscreame/go-training/day_6/networking-handlers/entity"
+	entity "github.com/Metalscreame/go-training/day_6/networking-handlers/internal/entity"
 	gomock "github.com/golang/mock/gomock"
 )
 

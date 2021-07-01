@@ -14,6 +14,7 @@ Use interfaces and not call it directly. Put it into separate package.
 	}
 ```
 For auth to be successful user should be `test` with `test_pwd` password. In other cases throw 403.
+
 3. (If there is time) Add new `Business layer` that will work only with repository and will be called by transport layer, from http handlers code.
 You should have `type BookService interface` for that layer. This service layer will know nothing about jsons/http etc.
 ###Steps to do:

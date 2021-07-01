@@ -4,7 +4,7 @@ Your main tasks:
 0. Replace Existing in-memory Repository with PostgreSQL repo.
 1. Extend this application to have: book in-memory concurrent-safe cache with 4 methods (Set,Get,Delete, Flush all), which will be used in service layer and will update\remove books when they are modified.
 Use interfaces and not call it directly. Put it into separate package.
-1. Implement a Job that will Flush a cache in the backgroun every 15 minutes. This is a business logic so put it in the corresponding place!
+1. Implement a Job that will Flush a cache in the backgroun every 15 minutes. This value should be configurable, not hardcoded. This is a business logic so put it in the corresponding place!
 2. Add new auth middleware that will check for an `Authorization` header. Header should contain `Basic <encoded base64 username:password>` . Just Retrieve this values from request using `request.BasicAuth()` and parse using
 ```b
     result, err := base64.StdEncoding.DecodeString(encoded)
@@ -14,7 +14,7 @@ Use interfaces and not call it directly. Put it into separate package.
 	}
 ```
 For auth to be successful user should be `test` with `test_pwd` password. In other cases throw 403.
-3. Add new `Business layer` that will work only with repository and will be called by transport layer, from http handlers code.
+3. (If there is time) Add new `Business layer` that will work only with repository and will be called by transport layer, from http handlers code.
 You should have `type BookService interface` for that layer. This service layer will know nothing about jsons/http etc.
 ###Steps to do:
 
@@ -31,4 +31,6 @@ You should have `type BookService interface` for that layer. This service layer 
 7. Implement methods to work with `Books`
 8. In the main file just replace the Repo with new Repo.
 9. Implement Auth middlware structure in analogy with existing middlware and add it to `r.Use(logMD, authMD)`
-10.
+10. Implement Cache.
+11. Implement background Flush job.
+12. 

@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	srv "github.com/igkostyuk/training-excercises/service"
+	srv "github.com/igkostyuk/training-excercises/day_2/service"
 )
 
 // Data to decode

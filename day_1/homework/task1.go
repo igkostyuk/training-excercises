@@ -2,84 +2,34 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
-	"math"
 	"strconv"
+	"strings"
 )
 
-var (
-	ticketLength = 6
+var numberLength = 10
 
-	ErrNegativeNumber = errors.New("number is negative")
-	ErrNumberLength   = fmt.Errorf("number is't %d digit long", ticketLength)
-)
-
-func getTicketNumber(number string) (int, error) {
-	n, err := strconv.Atoi(number)
-	if err != nil {
-		return 0, strconv.ErrSyntax
+func getPalindrom(n []rune, i, j int) []rune {
+	for i >= 0 && j < len(n) && n[i] == n[j] {
+		i, j = i-1, j+1
 	}
-	if len(number) != ticketLength {
-		return 0, ErrNumberLength
-	}
-
-	if n < 0 {
-		return 0, ErrNegativeNumber
-	}
-	return n, nil
+	return n[i+1 : j]
 }
-
-func isEasyLucky(n int) bool {
-	l, r := 0, 0
-	for i := 0; i < ticketLength/2; i++ {
-		l += n / int(math.Pow10(ticketLength-1-i)) % 10
-		r += n / int(math.Pow10(i)) % 10
-	}
-	return l == r
-}
-func isHardLucky(n int) bool {
-	var o, e, d int
-	for i := 0; i < ticketLength; i++ {
-		d = n / int(math.Pow10(i)) % 10
-		if d%2 == 0 {
-			e += d
-			continue
-		}
-		o += d
-	}
-	return o == e
-}
-
-func countLuckyNumbers(scanner *bufio.Scanner) (int, int, error) {
-	fmt.Print("Min: ")
-	scanner.Scan()
-	min, err := getTicketNumber(scanner.Text())
-	if err != nil {
-		return 0, 0, err
-	}
-	fmt.Print("Max: ")
-	scanner.Scan()
-	max, err := getTicketNumber(scanner.Text())
-	if err != nil {
-		return 0, 0, err
-	}
-	easyCounter, hardCounter := 0, 0
-	for i := min; i <= max; i++ {
-		if isEasyLucky(i) {
-			easyCounter++
-		}
-		if isHardLucky(i) {
-			hardCounter++
-		}
-	}
-	return easyCounter, hardCounter, nil
-}
-
 func Task1(scanner *bufio.Scanner) (string, error) {
-	easyCounter, hardCounter, err := countLuckyNumbers(scanner)
-	if err != nil {
-		return "", err
+	fmt.Printf("Enter a number that contains more than %d digits: ", numberLength)
+	scanner.Scan()
+	number := []rune(scanner.Text())
+	if len(number) < numberLength {
+		return "", fmt.Errorf("number less then %d digit long: %w", numberLength, strconv.ErrRange)
 	}
-	return fmt.Sprintf("\n--Result--\nEasyFormula: %d\nHardFormula: %d", easyCounter, hardCounter), nil
+	var palindroms strings.Builder
+	for i := 0; i < len(number); i++ {
+		if palindrom := getPalindrom(number, i, i); len(palindrom) > 2 {
+			fmt.Fprint(&palindroms, string(palindrom), " ")
+		}
+		if palindrom := getPalindrom(number, i, i+1); len(palindrom) > 2 {
+			fmt.Fprint(&palindroms, string(palindrom), " ")
+		}
+	}
+	return fmt.Sprintf("palindroms: %s", palindroms.String()), nil
 }

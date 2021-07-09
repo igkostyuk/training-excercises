@@ -18,22 +18,29 @@
 package main
 
 import (
-	"errors"
-	"log"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"io"
+	"log"
+	"sync"
+	"time"
 )
+
+var cleanInterval = 5 * time.Second
 
 // SessionManager keeps track of all sessions from creation, updating
 // to destroying.
 type SessionManager struct {
-	sessions map[string]Session
+	sessions  map[string]Session
+	lastClean time.Time
+	mu        sync.RWMutex
 }
 
 // Session stores the session's data
 type Session struct {
-	Data map[string]interface{}
+	Data       map[string]interface{}
+	lastUpdate time.Time
 }
 
 // NewSessionManager creates a new sessionManager
@@ -51,11 +58,13 @@ func (m *SessionManager) CreateSession() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.sessions[sessionID] = Session{
-		Data: make(map[string]interface{}),
+		Data:       make(map[string]interface{}),
+		lastUpdate: time.Now(),
 	}
-
+	defer time.AfterFunc(cleanInterval, func() { go m.clean() })
 	return sessionID, nil
 }
 
@@ -66,6 +75,8 @@ var ErrSessionNotFound = errors.New("SessionID does not exists")
 // GetSessionData returns data related to session if sessionID is
 // found, errors otherwise
 func (m *SessionManager) GetSessionData(sessionID string) (map[string]interface{}, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	session, ok := m.sessions[sessionID]
 	if !ok {
 		return nil, ErrSessionNotFound
@@ -75,17 +86,35 @@ func (m *SessionManager) GetSessionData(sessionID string) (map[string]interface{
 
 // UpdateSessionData overwrites the old session data with the new one
 func (m *SessionManager) UpdateSessionData(sessionID string, data map[string]interface{}) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	_, ok := m.sessions[sessionID]
 	if !ok {
 		return ErrSessionNotFound
 	}
-
 	// Hint: you should renew expiry of the session here
 	m.sessions[sessionID] = Session{
-		Data: data,
+		Data:       data,
+		lastUpdate: time.Now(),
 	}
-
+	defer time.AfterFunc(cleanInterval, func() { go m.clean() })
 	return nil
+}
+func (m *SessionManager) clean() {
+	m.mu.RLock()
+	lastClean := m.lastClean
+	m.mu.RUnlock()
+	if time.Since(lastClean) < time.Second {
+		return
+	}
+	m.mu.Lock()
+	m.lastClean = time.Now()
+	for k, v := range m.sessions {
+		if time.Since(v.lastUpdate) > cleanInterval {
+			delete(m.sessions, k)
+		}
+	}
+	m.mu.Unlock()
 }
 
 func main() {
@@ -95,7 +124,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	log.Println("Created new session with ID", sID)
 
 	// Update session data
@@ -113,7 +141,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	log.Println("Get session data:", updatedData)
 }
 
